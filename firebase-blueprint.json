@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Quote": {
+      "title": "Quote",
+      "description": "A service quote for a client",
+      "type": "object",
+      "properties": {
+        "clientName": { "type": "string", "description": "Name of the client" },
+        "clientEmail": { "type": "string", "format": "email", "description": "Email of the client" },
+        "serviceType": { "type": "string", "description": "Type of service (template name)" },
+        "items": { "type": "array", "description": "List of service items" },
+        "totalAmount": { "type": "number", "description": "Total value of the quote" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Current status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When it was created" },
+        "createdBy": { "type": "string", "description": "User ID of the creator" },
+        "customFields": { "type": "object", "description": "Custom fields based on service type" }
+      },
+      "required": ["clientName", "serviceType", "items", "totalAmount", "status", "createdAt", "createdBy"]
+    },
+    "ServiceType": {
+      "title": "Service Type",
+      "description": "A template for specific types of services",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the service type" },
+        "defaultFields": { "type": "array", "description": "Names of custom fields to include" },
+        "defaultItems": { "type": "array", "description": "Common items for this service" }
+      },
+      "required": ["name"]
+    }
+  },
+  "firestore": {
+    "/quotes/{quoteId}": {
+      "schema": "Quote",
+      "description": "Collection of all quotes"
+    },
+    "/serviceTypes/{typeId}": {
+      "schema": "ServiceType",
+      "description": "Templates for different services"
+    }
+  }
+}

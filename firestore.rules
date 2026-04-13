@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.createdBy;
+    }
+
+    function isValidQuote(data) {
+      return data.clientName is string && data.clientName.size() > 0 &&
+             data.serviceType is string &&
+             data.items is list &&
+             data.totalAmount is number &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.createdBy == request.auth.uid;
+    }
+
+    match /quotes/{quoteId} {
+      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || request.auth.token.email == "eduardosoarestonon@gmail.com");
+      allow create: if isAuthenticated() && isValidQuote(request.resource.data);
+      allow update: if isAuthenticated() && isDocOwner() && isValidQuote(request.resource.data);
+      allow delete: if isAuthenticated() && isDocOwner();
+    }
+
+    match /serviceTypes/{typeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated(); // For now, let users create templates
+    }
+  }
+}
