@@ -166,15 +166,16 @@ export function QuoteHistory({ quotes, onEdit }: QuoteHistoryProps) {
           </div>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">
-          <div className="border-t sm:border border-zinc-200 overflow-x-auto">
+          {/* Desktop Table View */}
+          <div className="hidden md:block border-t sm:border border-zinc-200 overflow-x-auto">
             <Table>
               <TableHeader className="bg-zinc-50">
                 <TableRow>
                   <TableHead className="font-semibold text-zinc-900 whitespace-nowrap">Data</TableHead>
                   <TableHead className="font-semibold text-zinc-900 whitespace-nowrap">Cliente</TableHead>
-                  <TableHead className="font-semibold text-zinc-900 whitespace-nowrap hidden md:table-cell">Serviço</TableHead>
+                  <TableHead className="font-semibold text-zinc-900 whitespace-nowrap">Serviço</TableHead>
                   <TableHead className="font-semibold text-zinc-900 whitespace-nowrap">Valor</TableHead>
-                  <TableHead className="font-semibold text-zinc-900 whitespace-nowrap hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="font-semibold text-zinc-900 whitespace-nowrap">Status</TableHead>
                   <TableHead className="text-right font-semibold text-zinc-900 whitespace-nowrap">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -188,19 +189,19 @@ export function QuoteHistory({ quotes, onEdit }: QuoteHistoryProps) {
                 ) : (
                   filteredQuotes.map(quote => (
                     <TableRow key={quote.id} className="hover:bg-zinc-50/50 transition-colors">
-                      <TableCell className="text-xs sm:text-sm text-zinc-600 whitespace-nowrap">
+                      <TableCell className="text-sm text-zinc-600 whitespace-nowrap">
                         {quote.createdAt?.toDate ? format(quote.createdAt.toDate(), 'dd/MM/yy', { locale: ptBR }) : 'Recent'}
                       </TableCell>
-                      <TableCell className="font-medium text-zinc-900 text-xs sm:text-sm max-w-[120px] truncate sm:max-w-none">
+                      <TableCell className="font-medium text-zinc-900 text-sm">
                         {quote.clientName}
                       </TableCell>
-                      <TableCell className="text-xs text-zinc-600 hidden md:table-cell">{quote.serviceType}</TableCell>
-                      <TableCell className="font-mono font-medium text-xs sm:text-sm whitespace-nowrap">
+                      <TableCell className="text-xs text-zinc-600">{quote.serviceType}</TableCell>
+                      <TableCell className="font-mono font-medium text-sm whitespace-nowrap">
                         {formatCurrency(quote.totalAmount)}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">{getStatusBadge(quote.status)}</TableCell>
+                      <TableCell>{getStatusBadge(quote.status)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-0.5 sm:gap-1">
+                        <div className="flex justify-end gap-1">
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedQuote(quote)} title="Visualizar">
                             <Eye className="h-3.5 w-3.5 text-zinc-500" />
                           </Button>
@@ -220,6 +221,51 @@ export function QuoteHistory({ quotes, onEdit }: QuoteHistoryProps) {
                 )}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden divide-y divide-zinc-100">
+            {filteredQuotes.length === 0 ? (
+              <div className="p-8 text-center text-zinc-500 text-sm italic">
+                Nenhum orçamento encontrado.
+              </div>
+            ) : (
+              filteredQuotes.map(quote => (
+                <div key={quote.id} className="p-4 space-y-3 bg-white active:bg-zinc-50 transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                        {quote.createdAt?.toDate ? format(quote.createdAt.toDate(), 'dd MMMM yyyy', { locale: ptBR }) : 'Recent'}
+                      </p>
+                      <h3 className="font-bold text-zinc-900 text-base leading-tight">{quote.clientName}</h3>
+                      <p className="text-xs text-zinc-500">{quote.serviceType}</p>
+                    </div>
+                    {getStatusBadge(quote.status)}
+                  </div>
+                  
+                  <div className="flex justify-between items-end pt-2">
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total</p>
+                      <p className="text-lg font-black text-zinc-900 tracking-tight">{formatCurrency(quote.totalAmount)}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200" onClick={() => setSelectedQuote(quote)}>
+                        <Eye className="h-4 w-4 text-zinc-600" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200" onClick={() => triggerDownload(quote)}>
+                        <Download className="h-4 w-4 text-zinc-600" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200" onClick={() => onEdit(quote)}>
+                        <Pencil className="h-4 w-4 text-zinc-600" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-9 w-9 border-zinc-200 text-red-500 hover:bg-red-50 hover:text-red-600" onClick={() => setQuoteToDelete(quote)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

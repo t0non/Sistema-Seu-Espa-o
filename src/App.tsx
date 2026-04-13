@@ -101,13 +101,13 @@ export default function App() {
       <Toaster position="top-right" />
       
       {/* Navigation */}
-      <header className="sticky top-0 z-10 border-b border-brand-blue/20 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-brand-blue/10 bg-white/90 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Logo className="h-8 w-8 sm:h-10 sm:w-10" />
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Logo className="h-9 w-9 sm:h-12 sm:w-12 drop-shadow-sm" />
             <div className="flex flex-col">
-              <span className="text-base sm:text-lg font-bold tracking-tight text-brand-blue-dark leading-none">Seu Espaço</span>
-              <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-brand-green font-bold">Limpeza Pós Obras</span>
+              <span className="text-lg sm:text-xl font-black tracking-tight text-brand-blue-dark leading-none">Seu Espaço</span>
+              <span className="text-[9px] sm:text-[11px] uppercase tracking-[0.2em] text-brand-green font-black mt-0.5">Limpeza Pós Obras</span>
             </div>
           </div>
         </div>
@@ -116,18 +116,18 @@ export default function App() {
       <main className="mx-auto max-w-7xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="bg-zinc-100 p-1 w-full sm:w-auto grid grid-cols-3 sm:flex">
-              <TabsTrigger value="history" className="gap-2 text-xs sm:text-sm" onClick={() => setQuoteToEdit(null)}>
+            <TabsList className="bg-zinc-200/50 p-1 w-full sm:w-auto grid grid-cols-3 sm:flex rounded-xl">
+              <TabsTrigger value="history" className="gap-2 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm" onClick={() => setQuoteToEdit(null)}>
                 <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">Histórico</span>
                 <span className="xs:hidden">Hist.</span>
               </TabsTrigger>
-              <TabsTrigger value="new" className="gap-2 text-xs sm:text-sm">
+              <TabsTrigger value="new" className="gap-2 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
                 <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">{quoteToEdit ? 'Editar' : 'Novo'}</span>
                 <span className="xs:hidden">{quoteToEdit ? 'Edit' : 'Novo'}</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2 text-xs sm:text-sm" onClick={() => setQuoteToEdit(null)}>
+              <TabsTrigger value="settings" className="gap-2 text-xs sm:text-sm font-bold rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm" onClick={() => setQuoteToEdit(null)}>
                 <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden xs:inline">Modelos</span>
                 <span className="xs:hidden">Mod.</span>
@@ -135,7 +135,7 @@ export default function App() {
             </TabsList>
             
             {activeTab === 'history' && (
-              <Button onClick={() => setActiveTab('new')} className="gap-2 bg-brand-blue hover:bg-brand-blue-dark w-full sm:w-auto shadow-md">
+              <Button onClick={() => setActiveTab('new')} className="gap-2 bg-brand-blue hover:bg-brand-blue-dark w-full sm:w-auto shadow-lg shadow-brand-blue/20 h-10 sm:h-11 font-bold rounded-xl">
                 <Plus className="h-4 w-4" />
                 Criar Orçamento
               </Button>

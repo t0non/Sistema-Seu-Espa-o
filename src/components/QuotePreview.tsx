@@ -48,10 +48,10 @@ export function QuotePreview({ quote, hideToolbar = false }: QuotePreviewProps) 
       )}
 
       {/* Document Area */}
-      <div className={`flex-1 ${hideToolbar ? 'p-0' : 'p-4 sm:p-8 overflow-y-auto'} flex justify-center bg-zinc-100/50`}>
+      <div className={`flex-1 ${hideToolbar ? 'p-0' : 'p-2 sm:p-8 overflow-y-auto'} flex justify-center bg-zinc-100/50`}>
         <div 
           ref={componentRef}
-          className={`${hideToolbar ? 'w-full' : 'w-full max-w-[210mm] shadow-xl p-[10mm] sm:p-[20mm]'} bg-white min-h-[297mm] text-zinc-900 print:shadow-none print:p-0 overflow-x-hidden`}
+          className={`${hideToolbar ? 'w-full' : 'w-full max-w-[210mm] shadow-xl p-4 sm:p-[20mm]'} bg-white min-h-[297mm] text-zinc-900 print:shadow-none print:p-0 overflow-x-hidden`}
         >
           {/* Main Title Section */}
           <div className="text-center mb-10">
