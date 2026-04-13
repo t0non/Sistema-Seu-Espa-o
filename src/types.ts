@@ -1,6 +1,7 @@
 export interface QuoteItem {
   id: string;
   description: string;
+  subDescription?: string;
   quantity: number;
   price: number;
   total: number;
@@ -19,6 +20,8 @@ export interface Quote {
   clientEmail: string;
   serviceType: string;
   items: QuoteItem[];
+  discountAmount?: number;
+  discountType?: 'percentage' | 'fixed';
   totalAmount: number;
   status: 'pending' | 'approved' | 'rejected';
   createdAt: any;

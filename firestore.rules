@@ -24,15 +24,15 @@ service cloud.firestore {
     }
 
     match /quotes/{quoteId} {
-      allow read: if isAuthenticated() && (resource.data.createdBy == request.auth.uid || request.auth.token.email == "eduardosoarestonon@gmail.com");
-      allow create: if isAuthenticated() && isValidQuote(request.resource.data);
-      allow update: if isAuthenticated() && isDocOwner() && isValidQuote(request.resource.data);
-      allow delete: if isAuthenticated() && isDocOwner();
+      allow read: if true;
+      allow create: if true;
+      allow update: if true;
+      allow delete: if true;
     }
 
     match /serviceTypes/{typeId} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated(); // For now, let users create templates
+      allow read: if true;
+      allow write: if true;
     }
   }
 }

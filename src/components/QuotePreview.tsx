@@ -1,8 +1,7 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Quote } from '../types';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, Mail, Share2, FileText } from 'lucide-react';
-import { Logo } from './Logo';
+import { Printer, Mail } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -12,6 +11,8 @@ interface QuotePreviewProps {
   quote: Quote;
   hideToolbar?: boolean;
 }
+
+const COMPANY_LOGO = "https://files.catbox.moe/iqyitd.png";
 
 export function QuotePreview({ quote, hideToolbar = false }: QuotePreviewProps) {
   const componentRef = useRef<HTMLDivElement>(null);
@@ -26,104 +27,177 @@ export function QuotePreview({ quote, hideToolbar = false }: QuotePreviewProps) 
     : format(new Date(), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
   return (
-    <div className={`flex flex-col ${hideToolbar ? 'bg-white min-h-screen' : 'bg-zinc-100 h-full'}`}>
+    <div className={`flex flex-col ${hideToolbar ? 'bg-white min-h-screen' : 'bg-zinc-100 h-full'} font-['Inter',sans-serif]`}>
       {/* Toolbar */}
       {!hideToolbar && (
-        <div className="flex items-center justify-between p-4 bg-white border-b border-zinc-200 sticky top-0 z-10">
-          <h3 className="font-bold text-zinc-900">Visualização do Orçamento</h3>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="gap-2 border-brand-blue text-brand-blue hover:bg-brand-blue/5" onClick={() => handlePrint()}>
+        <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-white border-b border-zinc-200 sticky top-0 z-10 no-print gap-4">
+          <h3 className="font-bold text-zinc-900 text-sm sm:text-base">Visualização do Orçamento</h3>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="flex-1 sm:flex-none gap-2 border-brand-blue text-brand-blue hover:bg-brand-blue/5" onClick={() => handlePrint()}>
               <Printer className="h-4 w-4" />
-              Imprimir / PDF
+              <span className="hidden xs:inline">Imprimir / PDF</span>
+              <span className="xs:hidden">PDF</span>
             </Button>
-            <Button size="sm" className="gap-2 bg-brand-blue hover:bg-brand-blue-dark">
+            <Button size="sm" className="flex-1 sm:flex-none gap-2 bg-brand-blue hover:bg-brand-blue-dark">
               <Mail className="h-4 w-4" />
-              Enviar por Email
+              <span className="hidden xs:inline">Enviar por Email</span>
+              <span className="xs:hidden">Email</span>
             </Button>
           </div>
         </div>
       )}
 
       {/* Document Area */}
-      <div className={`flex-1 ${hideToolbar ? 'p-0' : 'p-8 overflow-y-auto'} flex justify-center`}>
+      <div className={`flex-1 ${hideToolbar ? 'p-0' : 'p-4 sm:p-8 overflow-y-auto'} flex justify-center bg-zinc-100/50`}>
         <div 
           ref={componentRef}
-          className={`${hideToolbar ? 'w-full' : 'w-full max-w-[210mm] shadow-lg p-[20mm]'} bg-white min-h-[297mm] text-zinc-900 font-sans print:shadow-none print:p-0`}
+          className={`${hideToolbar ? 'w-full' : 'w-full max-w-[210mm] shadow-xl p-[10mm] sm:p-[20mm]'} bg-white min-h-[297mm] text-zinc-900 print:shadow-none print:p-0 overflow-x-hidden`}
         >
-          {/* Header */}
-          <div className="flex justify-between items-start border-b-4 border-brand-blue pb-8 mb-8">
-            <div className="flex items-center gap-4">
-              <Logo className="h-20 w-20" />
-              <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter text-brand-blue-dark">Seu Espaço</h1>
-                <p className="text-brand-green font-bold tracking-[0.2em] uppercase text-xs">Limpeza Pós Obras</p>
-                <p className="text-[10px] text-zinc-400 mt-1 font-medium">SERVIÇOS ESPECIALIZADOS</p>
+          {/* Main Title Section */}
+          <div className="text-center mb-10">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-brand-blue-dark uppercase">
+              ORÇAMENTO DE {quote.serviceType.toUpperCase()}
+            </h1>
+            <p className="text-brand-green font-bold tracking-[0.2em] uppercase text-[10px] sm:text-xs mt-1">
+              MANUTENÇÃO TÉCNICA E PROFISSIONAL
+            </p>
+          </div>
+
+          <div className="flex justify-end mb-8">
+            <p className="text-xs sm:text-sm font-medium text-zinc-600">
+              <span className="font-bold text-zinc-900">Data:</span> {dateStr}
+            </p>
+          </div>
+
+          {/* Company & Client Info Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+            <div className="border-l-4 border-brand-blue pl-6 py-2">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-blue mb-3">Empresa Contratada</h4>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-zinc-900">Seu Espaço Limpeza Pós-Obra</p>
+                <p className="text-xs text-zinc-600">Valdirene dos Reis Santos</p>
+                <p className="text-xs text-zinc-600">CNPJ: 62.495.769/0001-85</p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="bg-brand-blue text-white px-3 py-1 text-xs font-bold uppercase tracking-widest mb-2 inline-block rounded-sm">
-                Orçamento #{quote.id?.slice(-6).toUpperCase()}
+            
+            <div className="border-l-4 border-brand-blue pl-6 py-2">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.15em] text-brand-blue mb-3">Preparado Para</h4>
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-zinc-900">{quote.clientName}</p>
+                {quote.clientEmail && <p className="text-xs text-zinc-600">{quote.clientEmail}</p>}
+                {Object.entries(quote.customFields || {}).map(([key, value]) => value && (
+                  <p key={key} className="text-xs text-zinc-600">{value}</p>
+                ))}
               </div>
-              <p className="text-sm text-zinc-500 font-medium">{dateStr}</p>
             </div>
           </div>
 
-          {/* Intro Text */}
-          <div className="mb-10 text-zinc-700 leading-relaxed italic border-l-4 border-brand-green bg-zinc-50 p-6 rounded-r-lg">
-            "Conforme solicitado, apresentamos abaixo a proposta detalhada para os serviços de {quote.serviceType.toLowerCase()}. Nossa equipe está comprometida com a excelência e qualidade em cada etapa do processo."
+          {/* Salutation & Intro */}
+          <div className="mb-10">
+            <p className="text-sm font-bold text-zinc-900 mb-4">
+              Prezada {quote.clientName.split(' ')[0]},
+            </p>
+            <p className="text-sm text-zinc-600 leading-relaxed">
+              Apresentamos a proposta para os serviços de {quote.serviceType.toLowerCase()} conforme solicitado:
+            </p>
           </div>
 
           {/* Items Table */}
-          <div className="mb-12 overflow-hidden rounded-lg border border-zinc-200">
-            <table className="w-full border-collapse">
+          <div className="mb-10 overflow-x-auto">
+            <table className="w-full border-collapse min-w-[500px] sm:min-w-0">
               <thead>
-                <tr className="bg-brand-blue text-white text-[10px] font-bold uppercase tracking-widest">
-                  <th className="text-left p-4">Descrição do Serviço</th>
-                  <th className="text-center p-4">Qtd</th>
-                  <th className="text-right p-4">Valor Unit.</th>
-                  <th className="text-right p-4">Total</th>
+                <tr className="border-b-2 border-zinc-100">
+                  <th className="text-left py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Descrição do Serviço</th>
+                  <th className="text-left py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Detalhes</th>
+                  <th className="text-right py-4 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Valor (R$)</th>
                 </tr>
               </thead>
-              <tbody>
-                {quote.items.map((item, idx) => (
-                  <tr key={item.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-brand-blue/5'}>
-                    <td className="p-4 border-b border-zinc-100">
-                      <p className="font-bold text-sm text-brand-blue-dark">{item.description}</p>
+              <tbody className="divide-y divide-zinc-100">
+                {quote.items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="py-5 pr-4">
+                      <p className="font-bold text-sm text-zinc-900">{item.description}</p>
                     </td>
-                    <td className="p-4 border-b border-zinc-100 text-center text-sm">{item.quantity}</td>
-                    <td className="p-4 border-b border-zinc-100 text-right text-sm">{formatCurrency(item.price)}</td>
-                    <td className="p-4 border-b border-zinc-100 text-right font-bold text-sm text-brand-blue">{formatCurrency(item.total)}</td>
+                    <td className="py-5 px-4">
+                      {item.subDescription && (
+                        <p className="text-[11px] text-zinc-600 leading-relaxed">{item.subDescription}</p>
+                      )}
+                    </td>
+                    <td className="py-5 text-right font-bold text-sm text-zinc-900">
+                      {formatCurrency(item.total)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
+                {/* Subtotal if there's a discount */}
+                {(quote.discountAmount || 0) > 0 && (
+                  <tr className="border-t border-zinc-100">
+                    <td colSpan={2} className="pt-6 text-right">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Subtotal</span>
+                    </td>
+                    <td className="pt-6 text-right">
+                      <span className="text-sm font-bold text-zinc-600">
+                        {formatCurrency(quote.items.reduce((sum, i) => sum + i.total, 0))}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+                
+                {(quote.discountAmount || 0) > 0 && (
+                  <tr>
+                    <td colSpan={2} className="py-1 text-right">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-brand-green">
+                        Desconto {quote.discountType === 'percentage' ? `(${quote.discountAmount}%)` : ''}
+                      </span>
+                    </td>
+                    <td className="py-1 text-right">
+                      <span className="text-sm font-bold text-brand-green">
+                        - {formatCurrency(
+                          quote.discountType === 'percentage' 
+                            ? (quote.items.reduce((sum, i) => sum + i.total, 0) * (quote.discountAmount! / 100))
+                            : quote.discountAmount!
+                        )}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+                
                 <tr>
-                  <td colSpan={3} className="p-6 text-right">
-                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-400">Total do Orçamento</span>
+                  <td colSpan={2} className="pt-6 pb-6 text-right">
+                    <span className="text-xs font-black uppercase tracking-widest text-zinc-900">Valor Total da Proposta</span>
                   </td>
-                  <td className="p-6 text-right bg-brand-blue text-white">
-                    <span className="text-2xl font-black">{formatCurrency(quote.totalAmount)}</span>
+                  <td className="pt-6 pb-6 text-right">
+                    <span className="text-3xl font-black text-brand-blue">{formatCurrency(quote.totalAmount)}</span>
                   </td>
                 </tr>
               </tfoot>
             </table>
           </div>
 
-          {/* Terms */}
-          <div className="grid grid-cols-2 gap-8 mt-auto pt-12 border-t border-zinc-100">
-            <div className="space-y-2">
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-brand-blue">Validade da Proposta</h5>
-              <p className="text-xs text-zinc-500">Este orçamento é válido por 15 dias a partir da data de emissão.</p>
-            </div>
-            <div className="space-y-2">
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-brand-green">Prazo de Execução</h5>
-              <p className="text-xs text-zinc-500">A definir conforme cronograma após a aprovação formal.</p>
+          {/* Terms & Conditions */}
+          <div className="mt-12 pt-10 border-t-4 border-brand-green/20">
+            <div className="max-w-2xl space-y-2">
+              <div className="flex gap-2">
+                <p className="text-[11px] text-zinc-700"><span className="font-bold text-brand-green">Validade da Proposta:</span> 15 dias.</p>
+              </div>
+              <div className="flex gap-2">
+                <p className="text-[11px] text-zinc-700"><span className="font-bold text-brand-green">Itens Inclusos:</span> Mão de obra especializada, produtos e equipamentos profissionais.</p>
+              </div>
+              <div className="flex gap-2">
+                <p className="text-[11px] text-zinc-700"><span className="font-bold text-brand-green">Início:</span> Mediante agendamento prévio.</p>
+              </div>
+              {quote.notes && (
+                <div className="mt-4 p-4 bg-zinc-50 rounded-lg border border-zinc-100">
+                  <p className="text-[11px] text-zinc-600 leading-relaxed"><span className="font-bold text-zinc-900 uppercase tracking-tighter mr-1">Observações Adicionais:</span> {quote.notes}</p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-16 pt-8 border-t border-zinc-100 text-center">
-            <p className="text-[10px] text-zinc-400 uppercase tracking-[0.3em]">Gerado por Seu Espaço • Limpeza Pós Obras</p>
+          <div className="mt-20 text-center">
+            <p className="text-[9px] text-zinc-300 uppercase tracking-[0.4em] font-medium">Seu Espaço • Limpeza Pós Obras • Excelência em cada detalhe</p>
           </div>
         </div>
       </div>

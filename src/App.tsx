@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { auth, loginWithGoogle, logout, db } from './lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { collection, query, where, onSnapshot, orderBy, getDocs, addDoc } from 'firebase/firestore';
+import { db } from './lib/firebase';
+import { collection, query, onSnapshot, orderBy, getDocs, addDoc } from 'firebase/firestore';
 import { Quote, ServiceType } from './types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,12 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { QuoteForm } from './components/QuoteForm';
 import { QuoteHistory } from './components/QuoteHistory';
 import { Logo } from './components/Logo';
-import { LogIn, LogOut, Plus, History, Settings } from 'lucide-react';
+import { Plus, History, Settings } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('history');
   const [quotes, setQuotes] = useState<Quote[]>([]);
@@ -22,19 +20,8 @@ export default function App() {
   const [quoteToEdit, setQuoteToEdit] = useState<Quote | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    if (!user) return;
-
     const q = query(
       collection(db, 'quotes'),
-      where('createdBy', '==', user.uid),
       orderBy('createdAt', 'desc')
     );
 
@@ -44,14 +31,16 @@ export default function App() {
         ...doc.data()
       })) as Quote[];
       setQuotes(quotesData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Erro ao carregar orçamentos:", error);
+      setLoading(false);
     });
 
     return unsubscribe;
-  }, [user]);
+  }, []);
 
   useEffect(() => {
-    if (!user) return;
-
     const seedServiceTypes = async () => {
       const snapshot = await getDocs(collection(db, 'serviceTypes'));
       if (snapshot.empty) {
@@ -83,59 +72,26 @@ export default function App() {
     };
 
     seedServiceTypes();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
-    if (!user) return;
-
     const unsubscribe = onSnapshot(collection(db, 'serviceTypes'), (snapshot) => {
       const types = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as ServiceType[];
       setServiceTypes(types);
+    }, (error) => {
+      console.error("Erro ao carregar tipos de serviço:", error);
     });
 
     return unsubscribe;
-  }, [user]);
+  }, []);
 
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-zinc-50">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-900 border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 p-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md space-y-8 text-center"
-        >
-          <div className="space-y-4">
-            <Logo className="mx-auto h-24 w-24" />
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold tracking-tighter text-brand-blue-dark">Seu Espaço</h1>
-              <p className="text-zinc-500">Limpeza Pós Obras • Orçamentos Profissionais</p>
-            </div>
-          </div>
-          <Card className="border-zinc-200 shadow-xl overflow-hidden">
-            <div className="h-2 bg-brand-blue" />
-            <CardHeader>
-              <CardTitle>Bem-vindo</CardTitle>
-              <CardDescription>Faça login para começar a gerenciar seus orçamentos.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={loginWithGoogle} className="w-full gap-2 bg-brand-blue hover:bg-brand-blue-dark" size="lg">
-                <LogIn className="h-5 w-5" />
-                Entrar com Google
-              </Button>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
     );
   }
@@ -147,46 +103,39 @@ export default function App() {
       {/* Navigation */}
       <header className="sticky top-0 z-10 border-b border-brand-blue/20 bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Logo className="h-10 w-10" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Logo className="h-8 w-8 sm:h-10 sm:w-10" />
             <div className="flex flex-col">
-              <span className="text-lg font-bold tracking-tight text-brand-blue-dark leading-none">Seu Espaço</span>
-              <span className="text-[10px] uppercase tracking-widest text-brand-green font-bold">Limpeza Pós Obras</span>
+              <span className="text-base sm:text-lg font-bold tracking-tight text-brand-blue-dark leading-none">Seu Espaço</span>
+              <span className="text-[8px] sm:text-[10px] uppercase tracking-widest text-brand-green font-bold">Limpeza Pós Obras</span>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-2 sm:flex">
-              <img src={user.photoURL || ''} className="h-8 w-8 rounded-full border border-zinc-200" alt="User" referrerPolicy="no-referrer" />
-              <span className="text-sm font-medium">{user.displayName}</span>
-            </div>
-            <Button variant="ghost" size="icon" onClick={logout} title="Sair">
-              <LogOut className="h-5 w-5" />
-            </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:py-8 sm:px-6 lg:px-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6 sm:space-y-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="bg-zinc-100 p-1">
-              <TabsTrigger value="history" className="gap-2" onClick={() => setQuoteToEdit(null)}>
-                <History className="h-4 w-4" />
-                Histórico
+            <TabsList className="bg-zinc-100 p-1 w-full sm:w-auto grid grid-cols-3 sm:flex">
+              <TabsTrigger value="history" className="gap-2 text-xs sm:text-sm" onClick={() => setQuoteToEdit(null)}>
+                <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Histórico</span>
+                <span className="xs:hidden">Hist.</span>
               </TabsTrigger>
-              <TabsTrigger value="new" className="gap-2">
-                <Plus className="h-4 w-4" />
-                {quoteToEdit ? 'Editar Orçamento' : 'Novo Orçamento'}
+              <TabsTrigger value="new" className="gap-2 text-xs sm:text-sm">
+                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">{quoteToEdit ? 'Editar' : 'Novo'}</span>
+                <span className="xs:hidden">{quoteToEdit ? 'Edit' : 'Novo'}</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2" onClick={() => setQuoteToEdit(null)}>
-                <Settings className="h-4 w-4" />
-                Modelos
+              <TabsTrigger value="settings" className="gap-2 text-xs sm:text-sm" onClick={() => setQuoteToEdit(null)}>
+                <Settings className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Modelos</span>
+                <span className="xs:hidden">Mod.</span>
               </TabsTrigger>
             </TabsList>
             
             {activeTab === 'history' && (
-              <Button onClick={() => setActiveTab('new')} className="gap-2 bg-brand-blue hover:bg-brand-blue-dark">
+              <Button onClick={() => setActiveTab('new')} className="gap-2 bg-brand-blue hover:bg-brand-blue-dark w-full sm:w-auto shadow-md">
                 <Plus className="h-4 w-4" />
                 Criar Orçamento
               </Button>
@@ -213,7 +162,6 @@ export default function App() {
               
               <TabsContent value="new" className="mt-0">
                 <QuoteForm 
-                  user={user} 
                   serviceTypes={serviceTypes} 
                   quoteToEdit={quoteToEdit}
                   onCancel={() => {
